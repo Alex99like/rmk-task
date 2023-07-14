@@ -10,16 +10,43 @@ import { Category } from './model/Category';
 })
 export class AppComponent {
   title = 'rmk-task';
-    tasks: Task[];
-    categories: Category[]
+  tasks: Task[];
+  categories: Category[];
 
-    constructor(
-        private dataHandler: DataHandlerService, // фасад для работы с данными
-    ) {
-    }
+  private selectedCategory: Category | null = null;
 
-    ngOnInit(): void {
-        this.dataHandler.getAllTasks().subscribe(tasks => this.tasks = tasks);
-        this.dataHandler.getAllCategories().subscribe(categories => this.categories = categories)
-    }
+
+  constructor(
+      private dataHandler: DataHandlerService, // фасад для работы с данными
+  ) {
+  }
+
+  ngOnInit(): void {
+      // this.dataHandler.getAllTasks().subscribe(tasks => this.tasks = tasks);
+      this.dataHandler.getAllCategories().subscribe(categories => this.categories = categories);
+
+      this.onSelectCategory(null); // показать все задачи
+
+  }
+
+
+  // изменение категории
+  protected onSelectCategory(category: Category | null) {
+
+      this.selectedCategory = category;
+
+      this.dataHandler.searchTasks(
+          this.selectedCategory,
+          null,
+          null,
+          null
+      ).subscribe(tasks => {
+          this.tasks = tasks;
+      });
+
+  }
+
+  protected onUpdateTask(task: Task) {
+    console.log(task)
+  }
 }

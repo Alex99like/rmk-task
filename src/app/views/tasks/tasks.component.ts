@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,7 +12,6 @@ import { DataHandlerService } from 'src/app/service/data-handler.service';
 })
 export class TasksComponent implements OnInit {
 
-
     // поля для таблицы (те, что отображают данные из задачи - должны совпадать с названиями переменных класса)
     protected displayedColumns: string[] = ['color', 'id', 'title', 'date', 'priority', 'category'];
     protected dataSource: MatTableDataSource<Task>; // контейнер - источник данных для таблицы
@@ -21,10 +20,17 @@ export class TasksComponent implements OnInit {
     @ViewChild(MatPaginator, {static: false}) private paginator: MatPaginator;
     @ViewChild(MatSort, {static: false}) private sort: MatSort;
 
+    protected tasks: Task[];
 
     // текущие задачи для отображения на странице
-    @Input()
-    public tasks: Task[]; // напрямую не присваиваем значения в переменную, только через @Input
+    @Input('tasks')
+    public set setTasks(tasks: Task[]) { // напрямую не присваиваем значения в переменную, только через @Input
+        this.tasks = tasks;
+        this.fillTable();
+    }
+
+    @Output()
+    updateTask = new EventEmitter<Task>()
 
     constructor(private dataHandler: DataHandlerService) {
     }
@@ -62,6 +68,10 @@ export class TasksComponent implements OnInit {
     // показывает задачи с применением всех текущий условий (категория, поиск, фильтры и пр.)
     private fillTable() {
 
+        if (!this.dataSource){
+            return;
+        }
+
         this.dataSource.data = this.tasks; // обновить источник данных (т.к. данные массива tasks обновились)
 
         this.addTableObjects();
@@ -97,5 +107,7 @@ export class TasksComponent implements OnInit {
         this.dataSource.paginator = this.paginator; // обновить компонент постраничности (кол-во записей, страниц)
     }
 
-
+    protected onClickTask(task: Task) {
+      this.updateTask.emit(task)
+    }
 }
