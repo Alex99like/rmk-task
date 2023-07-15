@@ -24,6 +24,10 @@ export class DataHandlerService {
         return this.taskDaoArray.getAll();
     }
 
+    updateTask(task: Task): Observable<Task> {
+      return this.taskDaoArray.update(task);
+    }
+
     getAllCategories(): Observable<Category[]> {
         return this.categoryDaoArray.getAll();
     }
