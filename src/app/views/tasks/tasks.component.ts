@@ -14,7 +14,6 @@ import { DataHandlerService } from 'src/app/service/data-handler.service';
 })
 export class TasksComponent implements OnInit {
 // поля для таблицы (те, что отображают данные из задачи - должны совпадать с названиями переменных класса)
-    // поля для таблицы (те, что отображают данные из задачи - должны совпадать с названиями переменных класса)
     protected displayedColumns: string[] = ['color', 'id', 'title', 'date', 'priority', 'category'];
     protected dataSource: MatTableDataSource<Task>; // контейнер - источник данных для таблицы
 
@@ -22,8 +21,14 @@ export class TasksComponent implements OnInit {
     @ViewChild(MatPaginator, {static: false}) private paginator: MatPaginator;
     @ViewChild(MatSort, {static: false}) private sort: MatSort;
 
+
+    @Output()
+    deleteTask = new EventEmitter<Task>();
+
     @Output()
     updateTask = new EventEmitter<Task>();
+
+
     protected tasks: Task[];
 
     // текущие задачи для отображения на странице
@@ -37,7 +42,7 @@ export class TasksComponent implements OnInit {
         private dataHandler: DataHandlerService, // доступ к данным
         private dialog: MatDialog, // работа с диалоговым окном
 
-) {
+    ) {
     }
 
     ngOnInit() {
@@ -55,7 +60,7 @@ export class TasksComponent implements OnInit {
     }
 
     // в зависимости от статуса задачи - вернуть цвет названия
-    public getPriorityColor(task: Task): string {
+    protected getPriorityColor(task: Task): string {
 
         // цвет завершенной задачи
         if (task.completed) {
@@ -71,7 +76,7 @@ export class TasksComponent implements OnInit {
     }
 
     // показывает задачи с применением всех текущий условий (категория, поиск, фильтры и пр.)
-    public fillTable(): void {
+    private fillTable(): void {
 
         if (!this.dataSource) {
             return;
@@ -118,14 +123,25 @@ export class TasksComponent implements OnInit {
 
         // открытие диалогового окна
         const dialogRef = this.dialog.open(EditTaskDialogComponent, {
-          data: [task, 'Редактирование задачи'],
-          autoFocus: false
+            data: [task, 'Редактирование задачи'],
+            autoFocus: false
         });
 
         dialogRef.afterClosed().subscribe(result => {
             // обработка результатов
 
 
+            if (result === 'delete') {
+                this.deleteTask.emit(task);
+                return;
+            }
+
+            if (result as Task) { // если нажали ОК и есть результат
+                this.updateTask.emit(task);
+                return;
+            }
+
         });
     }
+
 }

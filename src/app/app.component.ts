@@ -11,44 +11,30 @@ import { Category } from './model/Category';
 export class AppComponent {
   title = 'rmk-task';
   tasks: Task[];
-  categories: Category[];
+    categories: Category[];
 
-  private selectedCategory: Category | null = null;
-
-
-  constructor(
-      private dataHandler: DataHandlerService, // фасад для работы с данными
-  ) {
-  }
-
-  ngOnInit(): void {
-      // this.dataHandler.getAllTasks().subscribe(tasks => this.tasks = tasks);
-      this.dataHandler.getAllCategories().subscribe(categories => this.categories = categories);
-
-      this.onSelectCategory(null); // показать все задачи
-
-  }
+    private selectedCategory: Category | null = null;
 
 
-  // изменение категории
-  protected onSelectCategory(category: Category | null) {
+    constructor(
+        private dataHandler: DataHandlerService, // фасад для работы с данными
+    ) {
+    }
 
-      this.selectedCategory = category;
+    ngOnInit(): void {
+        // this.dataHandler.getAllTasks().subscribe(tasks => this.tasks = tasks);
+        this.dataHandler.getAllCategories().subscribe(categories => this.categories = categories);
 
-      this.dataHandler.searchTasks(
-          this.selectedCategory,
-          null,
-          null,
-          null
-      ).subscribe(tasks => {
-          this.tasks = tasks;
-      });
+        this.onSelectCategory(null); // показать все задачи
 
-  }
+    }
 
-  protected onUpdateTask(task: Task) {
 
-    this.dataHandler.updateTask(task).subscribe(() => {
+    // изменение категории
+    protected onSelectCategory(category: Category | null) {
+
+        this.selectedCategory = category;
+
         this.dataHandler.searchTasks(
             this.selectedCategory,
             null,
@@ -57,7 +43,39 @@ export class AppComponent {
         ).subscribe(tasks => {
             this.tasks = tasks;
         });
-    });
 
-}
+    }
+
+    // обновление задачи
+    protected onUpdateTask(task: Task) {
+
+        this.dataHandler.updateTask(task).subscribe(() => {
+            this.dataHandler.searchTasks(
+                this.selectedCategory,
+                null,
+                null,
+                null
+            ).subscribe(tasks => {
+                this.tasks = tasks;
+            });
+        });
+
+    }
+
+    // удаление задачи
+    protected onDeleteTask(task: Task) {
+
+        this.dataHandler.deleteTask(task.id).subscribe(() => {
+            this.dataHandler.searchTasks(
+                this.selectedCategory,
+                null,
+                null,
+                null
+            ).subscribe(tasks => {
+                this.tasks = tasks;
+            });
+        });
+
+
+    }
 }
