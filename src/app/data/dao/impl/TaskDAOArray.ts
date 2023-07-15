@@ -94,7 +94,7 @@ export class TaskDAOArray implements TaskDAO {
     }
 
     // кол-во незавершенных задач в заданной категории (если category === null, то для всех категорий)
-    getUncompletedCountInCategory(category: Category): Observable<number> {
+    getUncompletedCountInCategory(category: Category | null): Observable<number> {
         return of(this.searchTasks(category, null, false, null).length);
     }
 
